@@ -4,6 +4,10 @@
 
 A Content Addressable Distributed File System (CADFS) is a type of file system that uses content-based addressing to manage and retrieve data across a distributed network of nodes. Unlike traditional file systems that use hierarchical paths or filenames to locate data, a CADFS identifies and accesses files based on their content. This project offers a content-addressable distributed file storage built using Go. It also implements a peer-to-peer library built on top of TCP from scratch. This custom network library supports streaming files across the network in chunks, allowing exchange of large files across the network.
 
+## Architecture
+
+![architecture of the distributed file system](./docs/architecture.svg)
+
 ## Setup
 
 It is recommended to have Go installed before running the project. Go can be installed from the official [Go website](https://go.dev/doc/install). This project was built using Go version `1.22.2`.
