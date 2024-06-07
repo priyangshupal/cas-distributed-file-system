@@ -46,7 +46,7 @@ func main () {
 
 	time.Sleep(time.Second * 1)
 
-	for i := 0; i < 1; i++ {
+	for i := 0; i < 5; i++ {
 		key := fmt.Sprintf("picture_%d", i)
 		data := bytes.NewReader([]byte("my big data file here!"))
 		s2.Store(key, data)
