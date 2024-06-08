@@ -76,6 +76,11 @@ type MessageGetFile struct {
 	Key string
 }
 
+type MessageDeleteFile struct {
+	ID string
+	Key string
+}
+
 func (s *FileServer) Get (key string) (io.Reader, error) {
 	if s.store.Has(s.ID, key) {
 		log.Printf("[%s] serving file (%s) from local disk\n", s.Transport.Addr(), key)
@@ -158,6 +163,36 @@ func (s *FileServer) Store (key string, r io.Reader) error {
 	return nil
 }
 
+/*
+	Delete will delete the specified key in the current node
+	and across all other nodes in the network. It sends the
+	current node's ID and the file key to be deleted and waits
+	for a response from all the other nodes - whether the deletion
+	was successful or not.
+*/
+func (s *FileServer) Delete (key string) error {
+	err := s.store.Delete(s.ID, key);
+	if err != nil {
+		return err
+	}
+	msg := Message {
+		Payload: MessageDeleteFile {
+			ID: s.ID,
+			Key: hashKey(key),
+		},
+	}
+  
+	// Sending the key and size of message to all peers
+	fmt.Printf("[%s] sending delete command to all nodes in the network\n", s.Transport.Addr())
+	if err := s.broadcast(&msg); err != nil {
+		return err
+	}
+
+	time.Sleep(time.Millisecond * 5)
+	
+	return nil
+}
+
 func (s *FileServer) Stop() {
 	close (s.quitch)
 }
@@ -199,6 +234,8 @@ func (s *FileServer) handleMessage (from string, msg* Message) error {
 		return s.handleMessageStoreFile(from, v)
 	case MessageGetFile:
 		return s.handleMessageGetFile(from, v)
+	case MessageDeleteFile:
+		return s.handleMessageDeleteFile(from, v)
 	}
 	return nil
 }
@@ -254,6 +291,29 @@ func (s *FileServer) handleMessageStoreFile (from string, msg MessageStoreFile) 
 	return nil
 }
 
+/* This function contains logic to delete the specified file from peers
+*/
+func (s *FileServer) handleMessageDeleteFile (from string, msg MessageDeleteFile) error {
+	if !s.store.Has(msg.ID, msg.Key) {
+		return fmt.Errorf("[%s] need to delete file (%s) but it does not exist on disk", s.Transport.Addr(), msg.Key)
+	}
+
+	peer, ok := s.peers[from]
+	if !ok {
+		return fmt.Errorf("peer %s not in map", peer)
+	}
+
+	log.Printf("[%s] found file (%s), deleting it...\n", s.Transport.Addr(), msg.Key)
+
+	if err := s.store.Delete(msg.ID, msg.Key); err != nil {
+		return fmt.Errorf("[%s] error while deleting file (%s): %v", s.Transport.Addr(), msg.Key, err)
+	}
+
+	log.Printf("[%s] successfully deleted file (%s)", s.Transport.Addr(), msg.Key)
+
+	return nil
+}
+
 func (s *FileServer) bootstrapNetwork() error {
 	for _, addr := range s.BootstrapNodes {
 		if len(addr) == 0 {
@@ -281,4 +341,5 @@ func (s *FileServer) Start () error {
 func init () {
 	gob.Register(MessageStoreFile{})
 	gob.Register(MessageGetFile{})
+	gob.Register(MessageDeleteFile{})
 }

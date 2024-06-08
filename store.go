@@ -97,7 +97,7 @@ func (s *Store) Delete (id string, key string) error {
 	pathKey := s.PathTransformFunc(key)
 
 	defer func () {
-		log.Printf("Deleted [%s] from disk\n", pathKey.Filename)
+		log.Printf("[%s] deleted (%s) from disk\n", s.Root, pathKey.Filename)
 	}()
 	firstPathNameWithRoot := fmt.Sprintf("%s/%s/%s", s.Root, id, pathKey.FirstPathName())
 	return os.RemoveAll(firstPathNameWithRoot)
