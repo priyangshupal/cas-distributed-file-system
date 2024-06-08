@@ -7,7 +7,9 @@ import (
 	"log"
 	"time"
 
+	"github.com/priyangshupal/distributed-file-system/crypto"
 	"github.com/priyangshupal/distributed-file-system/p2p"
+	"github.com/priyangshupal/distributed-file-system/store"
 )
 
 func makeServer (listenAddr string, nodes ...string) *FileServer {
@@ -18,9 +20,9 @@ func makeServer (listenAddr string, nodes ...string) *FileServer {
 	}
 	tcpTransport := p2p.NewTCPTransport(tcpTransportOpts)
 	fileServerOpts := FileServerOpts {
-		EncKey: newEncryptionKey(),
+		EncKey: crypto.NewEncryptionKey(),
 		StorageRoot: listenAddr + "_network",
-		PathTransformFunc: CASPathTransformFunc,
+		PathTransformFunc: store.CASPathTransformFunc,
 		Transport: tcpTransport,
 		BootstrapNodes: nodes,
 	}

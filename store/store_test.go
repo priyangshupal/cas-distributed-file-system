@@ -1,10 +1,12 @@
-package main
+package store
 
 import (
 	"bytes"
 	"fmt"
 	"io"
 	"testing"
+
+	"github.com/priyangshupal/distributed-file-system/crypto"
 )
 
 func TestPathTransformFunc (t *testing.T) {
@@ -25,7 +27,7 @@ func TestDelete (t *testing.T) {
 		PathTransformFunc: CASPathTransformFunc,
 	}
 	s := NewStore(opts)
-	id := generateID()
+	id := crypto.GenerateID()
 	key := "mypicture"
 	data := []byte("some jpg bytes")
 	if _, err := s.writeStream(id, key, bytes.NewReader(data)); err != nil {
@@ -38,7 +40,7 @@ func TestDelete (t *testing.T) {
 
 func TestStore(t *testing.T) {
 	s := newStore()
-	id := generateID()
+	id := crypto.GenerateID()
 	defer tearDown(t, s)
 
 	for i := 0; i < 50; i++ {
@@ -80,7 +82,7 @@ func newStore () *Store {
 }
 
 func tearDown (t *testing.T, s *Store) {
-	if err := s.Clear(); err != nil {
+	if err := s.clear(); err != nil {
 		t.Error(err)
 	}
 }

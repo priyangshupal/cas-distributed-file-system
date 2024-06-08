@@ -10,14 +10,16 @@ import (
 	"sync"
 	"time"
 
+	"github.com/priyangshupal/distributed-file-system/crypto"
 	"github.com/priyangshupal/distributed-file-system/p2p"
+	"github.com/priyangshupal/distributed-file-system/store"
 )
 
 type FileServerOpts struct {
 	ID string
 	EncKey []byte
 	StorageRoot string
-	PathTransformFunc PathTransformFunc	
+	PathTransformFunc store.PathTransformFunc	
 	Transport p2p.Transport
 	BootstrapNodes []string
 }
@@ -27,21 +29,21 @@ type FileServer struct {
 
 	peerLock sync.Mutex
 	peers map[string]p2p.Peer
-	store *Store
+	store *store.Store
 	quitch chan struct {}
 }
 
 func NewFileServer(opts FileServerOpts) *FileServer {
-	storeOpts := StoreOpts {
+	storeOpts := store.StoreOpts {
 		Root: opts.StorageRoot,
 		PathTransformFunc: opts.PathTransformFunc,
 	}
 
-	if len(opts.ID) == 0 { opts.ID = generateID() }
+	if len(opts.ID) == 0 { opts.ID = crypto.GenerateID() }
 	
 	return &FileServer{
 		FileServerOpts: opts,
-		store: NewStore(storeOpts),
+		store: store.NewStore(storeOpts),
 		quitch: make(chan struct{}),
 		peers: make(map[string]p2p.Peer),
 	}
@@ -93,7 +95,7 @@ func (s *FileServer) Get (key string) (io.Reader, error) {
 	msg := Message {
 		Payload: MessageGetFile{
 			ID: s.ID,
-			Key: hashKey(key),
+			Key: crypto.HashKey(key),
 		},
 	}
 
@@ -135,7 +137,7 @@ func (s *FileServer) Store (key string, r io.Reader) error {
 	msg := Message {
 		Payload: MessageStoreFile {
 			ID: s.ID,
-			Key: hashKey(key),
+			Key: crypto.HashKey(key),
 			Size: size + 16,
 		},
 	}
@@ -153,7 +155,7 @@ func (s *FileServer) Store (key string, r io.Reader) error {
 	}
 	mw := io.MultiWriter(peers...)
 	mw.Write([]byte{p2p.IncomingStream})
-	n, err := copyEncrypt(s.EncKey, fileBuffer, mw)
+	n, err := crypto.CopyEncrypt(s.EncKey, fileBuffer, mw)
 	if err != nil {
 		return err
 	}
@@ -178,7 +180,7 @@ func (s *FileServer) Delete (key string) error {
 	msg := Message {
 		Payload: MessageDeleteFile {
 			ID: s.ID,
-			Key: hashKey(key),
+			Key: crypto.HashKey(key),
 		},
 	}
   
