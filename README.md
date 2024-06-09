@@ -1,8 +1,8 @@
-# Peer-to-peer content-addressable distributed file system
+# Peer-to-peer content-addressable file system
 
 ## Overview
 
-A Content Addressable Distributed File System (CADFS) is a type of file system that uses content-based addressing to manage and retrieve data across a distributed network of nodes. Unlike traditional file systems that use hierarchical paths or filenames to locate data, a CADFS identifies and accesses files based on their content. This project offers a content-addressable distributed file storage built using Go. It also implements a peer-to-peer library built on top of TCP from scratch. This custom network library supports streaming files across the network in chunks, allowing exchange of large files across the network.
+A Content Addressable File System (CADFS) is a type of file system that uses content-based addressing to manage and retrieve data across a network of nodes. Unlike traditional file systems that use hierarchical paths or filenames to locate data, a CADFS identifies and accesses files based on their content. This project offers a peer-to-peer content-addressable file storage built using Go. It also implements a peer-to-peer library built on top of TCP from scratch. This custom network library supports streaming files across the network in chunks, allowing exchange of large files across the network.
 
 ## Key features
 
@@ -14,7 +14,7 @@ A Content Addressable Distributed File System (CADFS) is a type of file system t
 
 ## Architecture
 
-![architecture of the distributed file system](./docs/architecture.svg)
+![architecture of the file system](./docs/architecture.svg)
 
 ## Getting started
 
