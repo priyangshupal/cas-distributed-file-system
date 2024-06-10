@@ -1,4 +1,4 @@
-# Peer-to-peer content-addressable file system
+# Peer-to-peer content-addressable distributed file system
 
 ## Overview
 
