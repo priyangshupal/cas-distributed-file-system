@@ -14,7 +14,7 @@ A Content Addressable File System (CADFS) is a type of file system that uses con
 
 ## Architecture
 
-![architecture of the file system](./docs/architecture.svg)
+![architecture of the file system](https://raw.githubusercontent.com/priyangshupal/documentation-images/main/cas-distributed-file-system/architecture.svg)
 
 ## Getting started
 
